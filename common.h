@@ -193,6 +193,8 @@
 #if defined(_CRT_USE_BUILTIN_OFFSETOF) || Q_HAS_BUILTIN(__builtin_offsetof)
 #define Q_OFFSETOF(STRUCT, MEMBER) __builtin_offsetof(STRUCT, MEMBER)
 #else
+// used: [stl] addressof
+#include <memory>
 #define Q_OFFSETOF(STRUCT, MEMBER) reinterpret_cast<std::size_t>(std::addressof(static_cast<STRUCT*>(nullptr)->MEMBER))
 #endif
 #pragma endregion
