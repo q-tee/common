@@ -179,6 +179,8 @@
 
 #if defined(Q_COMPILER_MSC) || defined(Q_COMPILER_CLANG)
 #define Q_NAKED __declspec(naked)
+#elif defined(Q_COMPILER_GCC)
+#define Q_NAKED __attribute__((naked))
 #endif
 #pragma endregion
 
@@ -209,6 +211,8 @@
 #define Q_INLINE [[clang::always_inline]]
 #elif defined(Q_COMPILER_MSC)
 #define Q_INLINE [[msvc::forceinline]]
+#elif defined(Q_COMPILER_GCC)
+#define Q_INLINE __attribute__((always_inline))
 #else
 #define Q_INLINE
 #endif
@@ -219,6 +223,8 @@
 #define Q_NOINLINE [[clang::noinline]]
 #elif defined(Q_COMPILER_MSC)
 #define Q_NOINLINE [[msvc::noinline]]
+#elif defined(Q_COMPILER_GCC)
+#define Q_NOINLINE __attribute__((noinline))
 #else
 #define Q_NOINLINE
 #endif
@@ -227,8 +233,10 @@
 #ifndef Q_DEBUG_BREAK
 #if defined(Q_COMPILER_MSC)
 #define Q_DEBUG_BREAK() ::__debugbreak()
-#elif defined(Q_COMPILER_CLANG)
+#elif Q_HAS_BUILTIN(__builtin_debugtrap)
 #define Q_DEBUG_BREAK() ::__builtin_debugtrap()
+#elif Q_HAS_BUILTIN(__builtin_trap)
+#define Q_DEBUG_BREAK() ::__builtin_trap()
 #else
 // @todo: use #warning instead of #error
 #error "it is expected you to define Q_DEBUG_BREAK() into something that will break in a debugger!"
