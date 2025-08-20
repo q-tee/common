@@ -10,12 +10,6 @@
 
 // define to overwrite default 'forceinline' function specifier
 //#define Q_INLINE inline
-
-// define to overwrite default return address grabber
-//#define Q_RETURN_ADDRESS()
-
-// define to overwrite default stack frame address grabber
-//#define Q_FRAME_ADDRESS()
 #pragma endregion
 
 /*
@@ -23,7 +17,6 @@
  * - debugging helpers and their behaviour
  */
 #pragma region user_debug
-/* @section: helpers */
 // define to overwrite default debugger break-point
 //#define Q_DEBUG_BREAK() __asm int 3;
 

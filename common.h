@@ -224,29 +224,6 @@
 #endif
 #endif
 
-#ifndef Q_RETURN_ADDRESS
-#if defined(Q_COMPILER_MSC)
-#define Q_RETURN_ADDRESS() ::_ReturnAddress()
-#elif defined(Q_COMPILER_CLANG)
-#define Q_RETURN_ADDRESS() ::__builtin_return_address(0)
-#else
-#error "it is expected you to define Q_RETURN_ADDRESS() into something that will get the return address off the stack!"
-#define Q_RETURN_ADDRESS()
-#endif
-#endif
-
-#ifndef Q_FRAME_ADDRESS
-#if defined(Q_COMPILER_MSC)
-#define Q_FRAME_ADDRESS() ::_AddressOfReturnAddress()
-#elif defined(Q_COMPILER_CLANG)
-// @note: it isn't always what we're expecting, compiler dependent
-#define Q_FRAME_ADDRESS() ::__builtin_frame_address(0)
-#else
-#error "it is expected you to define Q_FRAME_ADDRESS() into something that will get the address of the function's stack frame!"
-#define Q_FRAME_ADDRESS()
-#endif
-#endif
-
 #ifndef Q_DEBUG_BREAK
 #if defined(Q_COMPILER_MSC)
 #define Q_DEBUG_BREAK() ::__debugbreak()
