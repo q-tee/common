@@ -103,7 +103,7 @@
 #define Q_ISA_SSE2
 #define Q_ISA_SSE
 #define Q_ISA_MMX
-#elif defined(__SSE2__) || _M_IX86_FP == 2 || defined(Q_ARCH_X86_64)
+#elif defined(__SSE2__) || _M_IX86_FP == 2 || defined(Q_ARCH_X64)
 #define Q_ISA_SSE2
 #define Q_ISA_SSE
 #define Q_ISA_MMX
