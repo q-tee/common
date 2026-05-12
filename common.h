@@ -176,11 +176,6 @@
 #else
 #define Q_HAS_BUILTIN(BUILTIN) 0
 #endif
-
-#if defined(Q_COMPILER_MSC) || defined(Q_COMPILER_CLANG)
-#define Q_NAKED __declspec(naked)
-#elif defined(Q_COMPILER_GCC)
-#define Q_NAKED __attribute__((naked))
 #endif
 #pragma endregion
 
@@ -188,10 +183,13 @@
 #include "user.h"
 
 #pragma region common_implementation_specific
+#ifndef Q_ARRAYSIZE
 // calculate elements count of the fixed-size C array
 #define Q_ARRAYSIZE(ARRAY) (sizeof(ARRAY) / sizeof(ARRAY[0]))
+#endif
 
 // calculate the offset of a struct member variable, in bytes
+#ifndef Q_OFFSETOF
 #if defined(_CRT_USE_BUILTIN_OFFSETOF) || Q_HAS_BUILTIN(__builtin_offsetof)
 #define Q_OFFSETOF(STRUCT, MEMBER) __builtin_offsetof(STRUCT, MEMBER)
 #else
@@ -199,20 +197,17 @@
 #include <memory>
 #define Q_OFFSETOF(STRUCT, MEMBER) reinterpret_cast<std::size_t>(std::addressof(static_cast<STRUCT*>(nullptr)->MEMBER))
 #endif
+#endif
 #pragma endregion
 
-#pragma region common_user_specific
-#ifndef Q_STR
-#define Q_STR(STRING) STRING
-#endif
-
+#pragma region common_user_attribute
 #ifndef Q_INLINE
 #if defined(Q_COMPILER_CLANG)
 #define Q_INLINE [[clang::always_inline]]
+#elif defined(Q_COMPILER_GCC)
+#define Q_INLINE [[gnu::always_inline]]
 #elif defined(Q_COMPILER_MSC)
 #define Q_INLINE [[msvc::forceinline]]
-#elif defined(Q_COMPILER_GCC)
-#define Q_INLINE __attribute__((always_inline))
 #else
 #define Q_INLINE
 #endif
@@ -221,15 +216,29 @@
 #ifndef Q_NOINLINE
 #if defined(Q_COMPILER_CLANG)
 #define Q_NOINLINE [[clang::noinline]]
+#elif defined(Q_COMPILER_GCC)
+#define Q_NOINLINE [[gnu::noinline]]
 #elif defined(Q_COMPILER_MSC)
 #define Q_NOINLINE [[msvc::noinline]]
-#elif defined(Q_COMPILER_GCC)
-#define Q_NOINLINE __attribute__((noinline))
 #else
 #define Q_NOINLINE
 #endif
 #endif
 
+#ifndef Q_NAKED
+#if defined(Q_COMPILER_CLANG)
+#define Q_NAKED [[clang::naked]]
+#elif defined(Q_COMPILER_GCC)
+#define Q_NAKED [[gnu::naked]]
+#elif defined(Q_COMPILER_MSC)
+#define Q_NAKED __declspec(naked)
+#else
+#define Q_NAKED
+#endif
+#endif
+#pragma endregion
+
+#pragma region common_user_debug
 #ifndef Q_DEBUG_BREAK
 #if defined(Q_COMPILER_MSC)
 #define Q_DEBUG_BREAK() ::__debugbreak()
@@ -245,12 +254,18 @@
 #endif
 
 #ifndef Q_ASSERT
-#ifdef _DEBUG
-#define Q_ASSERT(EXPRESSION) static_cast<void>(!!(EXPRESSION) || (Q_DEBUG_BREAK(), false))
-#else
-// disable assertion for release builds
+#ifdef NDEBUG
+// disable assertions for release builds
 #define Q_ASSERT(EXPRESSION) static_cast<void>(0)
+#else
+#define Q_ASSERT(EXPRESSION) static_cast<void>(!!(EXPRESSION) || (Q_DEBUG_BREAK(), false))
 #endif
+#endif
+#pragma endregion
+
+#pragma region common_user_other
+#ifndef Q_STR
+#define Q_STR(STRING) STRING
 #endif
 #pragma endregion
 
@@ -264,15 +279,15 @@ CLASS() = delete;						\
 CLASS(CLASS&&) = delete;				\
 CLASS(const CLASS&) = delete;
 
- /*
-  * explicitly delete the following assignment operators, to prevent attempts on using them:
-  * move-assignment, copy-assignment
-  */
+/*
+ * explicitly delete the following assignment operators, to prevent attempts on using them:
+ * move-assignment, copy-assignment
+ */
 #define Q_CLASS_NO_ASSIGNMENT(CLASS)	\
 CLASS& operator=(CLASS&&) = delete;		\
 CLASS& operator=(const CLASS&) = delete;
 
-  // explicitly delete any class initializer to prevent attempts on using them
+// explicitly delete any class initializer to prevent attempts on using them
 #define Q_CLASS_NO_INITIALIZER(CLASS)	\
 Q_CLASS_NO_CONSTRUCTOR(CLASS)			\
 Q_CLASS_NO_ASSIGNMENT(CLASS)
