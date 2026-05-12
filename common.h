@@ -236,6 +236,30 @@
 #define Q_NAKED
 #endif
 #endif
+
+#ifndef Q_ASSUME
+#if __has_cpp_attribute(assume) // C++23
+#define Q_ASSUME(EXPRESSION) [[assume(EXPRESSION)]]
+#elif defined(Q_COMPILER_CLANG)
+#define Q_ASSUME(EXPRESSION) __builtin_assume(EXPRESSION)
+#elif defined(Q_COMPILER_MSC)
+#define Q_ASSUME(EXPRESSION) __assume(EXPRESSION)
+#else
+#define Q_ASSUME(EXPRESSION)
+#endif
+#endif
+
+#ifndef Q_UNREACHABLE
+#if defined(Q_COMPILER_CLANG) || defined(Q_COMPILER_GCC)
+#define Q_UNREACHABLE __builtin_unreachable()
+#elif defined(Q_COMPILER_MSC)
+#define Q_UNREACHABLE Q_ASSUME(false)
+#elif defined(__cpp_lib_unreachable) // C++23
+// used: [stl] unreachable
+#include <utility>
+#define Q_UNREACHABLE std::unreachable();
+#endif
+#endif
 #pragma endregion
 
 #pragma region common_user_debug

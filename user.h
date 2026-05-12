@@ -13,6 +13,12 @@
 
 // define to overwrite default 'naked' function attribute
 //#define Q_NAKED
+
+// define to overwrite default 'assume' hint
+//#define Q_ASSUME
+
+// define to overwrite default 'unreachable' hint
+//#define Q_UNREACHABLE
 #pragma endregion
 
 /*
