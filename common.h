@@ -176,7 +176,6 @@
 #else
 #define Q_HAS_BUILTIN(BUILTIN) 0
 #endif
-#endif
 #pragma endregion
 
 // used: user defined overrides
