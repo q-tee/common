@@ -1,27 +1,6 @@
 #pragma once
 
 /*
- * ATTRIBUTES
- * - compilation-time function/variable and other attributes
- */
-#pragma region user_compile
-// define to overwrite default 'forceinline' function attribute
-//#define Q_INLINE inline
-
-// define to overwrite default 'noinline' function attribute
-//#define Q_NOINLINE
-
-// define to overwrite default 'naked' function attribute
-//#define Q_NAKED
-
-// define to overwrite default 'assume' hint
-//#define Q_ASSUME
-
-// define to overwrite default 'unreachable' hint
-//#define Q_UNREACHABLE
-#pragma endregion
-
-/*
  * DEBUG
  * - debugging helpers and their behavior
  */
@@ -36,6 +15,27 @@
 //#include <cassert>
 //#define Q_ASSERT(EXPRESSION) assert(EXPRESSION)
 //#endif
+#pragma endregion
+
+/*
+ * COMPILER
+ * - compilation-time function/variable compiler hints and attributes
+ */
+#pragma region user_compiler
+// define to overwrite default 'forceinline' function attribute
+//#define Q_INLINE inline
+
+// define to overwrite default 'noinline' function attribute
+//#define Q_NOINLINE
+
+// define to overwrite default 'naked' function attribute
+//#define Q_NAKED
+
+// define to overwrite default 'assume' hint
+//#define Q_ASSUME
+
+// define to overwrite default 'unreachable' hint
+//#define Q_UNREACHABLE()
 #pragma endregion
 
 /*

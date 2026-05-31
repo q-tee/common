@@ -199,7 +199,32 @@
 #endif
 #pragma endregion
 
-#pragma region common_user_attribute
+#pragma region common_user_debug
+#ifndef Q_DEBUG_BREAK
+#if defined(Q_COMPILER_MSC)
+#define Q_DEBUG_BREAK() ::__debugbreak()
+#elif Q_HAS_BUILTIN(__builtin_debugtrap)
+#define Q_DEBUG_BREAK() ::__builtin_debugtrap()
+#elif Q_HAS_BUILTIN(__builtin_trap)
+#define Q_DEBUG_BREAK() ::__builtin_trap()
+#else
+// @todo: use #warning instead of #error
+#error "it is expected you to define Q_DEBUG_BREAK() into something that will break in a debugger!"
+#define Q_DEBUG_BREAK()
+#endif
+#endif
+
+#ifndef Q_ASSERT
+#ifdef NDEBUG
+// disabled in release builds
+#define Q_ASSERT(EXPRESSION) static_cast<void>(0)
+#else
+#define Q_ASSERT(EXPRESSION) static_cast<void>(!!(EXPRESSION) || (Q_DEBUG_BREAK(), false))
+#endif
+#endif
+#pragma endregion
+
+#pragma region common_user_compiler
 #ifndef Q_INLINE
 #if defined(Q_COMPILER_CLANG)
 #define Q_INLINE [[clang::always_inline]]
@@ -249,39 +274,19 @@
 #endif
 
 #ifndef Q_UNREACHABLE
+#ifdef NDEBUG
 #if defined(Q_COMPILER_CLANG) || defined(Q_COMPILER_GCC)
-#define Q_UNREACHABLE __builtin_unreachable()
+#define Q_UNREACHABLE() __builtin_unreachable()
 #elif defined(Q_COMPILER_MSC)
-#define Q_UNREACHABLE Q_ASSUME(false)
+#define Q_UNREACHABLE() Q_ASSUME(false)
 #elif defined(__cpp_lib_unreachable) // C++23
 // used: [stl] unreachable
 #include <utility>
-#define Q_UNREACHABLE std::unreachable();
+#define Q_UNREACHABLE() std::unreachable()
 #endif
-#endif
-#pragma endregion
-
-#pragma region common_user_debug
-#ifndef Q_DEBUG_BREAK
-#if defined(Q_COMPILER_MSC)
-#define Q_DEBUG_BREAK() ::__debugbreak()
-#elif Q_HAS_BUILTIN(__builtin_debugtrap)
-#define Q_DEBUG_BREAK() ::__builtin_debugtrap()
-#elif Q_HAS_BUILTIN(__builtin_trap)
-#define Q_DEBUG_BREAK() ::__builtin_trap()
 #else
-// @todo: use #warning instead of #error
-#error "it is expected you to define Q_DEBUG_BREAK() into something that will break in a debugger!"
-#define Q_DEBUG_BREAK()
-#endif
-#endif
-
-#ifndef Q_ASSERT
-#ifdef NDEBUG
-// disable assertions for release builds
-#define Q_ASSERT(EXPRESSION) static_cast<void>(0)
-#else
-#define Q_ASSERT(EXPRESSION) static_cast<void>(!!(EXPRESSION) || (Q_DEBUG_BREAK(), false))
+// break on hit in debug builds
+#define Q_UNREACHABLE() Q_DEBUG_BREAK()
 #endif
 #endif
 #pragma endregion
